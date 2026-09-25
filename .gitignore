@@ -1,2 +1,5 @@
 __pycache__/
 usuarios.db
+ansible/inventario.ini
+ansible/respaldos/
+ansible/*.retry

@@ -1,0 +1,24 @@
+---
+- name: Respaldar configuracion del router CSR1000v
+  hosts: routers
+  gather_facts: no
+
+  tasks:
+    - name: Ejecutar show running-config
+      ios_command:
+        commands:
+          - show running-config
+      register: configuracion_router
+
+    - name: Crear carpeta local de respaldos
+      file:
+        path: respaldos
+        state: directory
+      delegate_to: localhost
+
+    - name: Guardar configuracion en archivo
+      copy:
+        content: "{{ configuracion_router.stdout[0] }}"
+        dest: "respaldos/{{ inventory_hostname }}_running-config.txt"
+      delegate_to: localhost
+

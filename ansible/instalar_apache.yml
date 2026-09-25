@@ -1,0 +1,44 @@
+---
+- name: Instalar Apache y configurar puerto 9999
+  hosts: localhost
+  connection: local
+  become: yes
+  gather_facts: no
+
+  tasks:
+    - name: Instalar servidor Apache
+      apt:
+        name: apache2
+        state: present
+        update_cache: yes
+
+    - name: Configurar Apache para escuchar en puerto 9999
+      lineinfile:
+        path: /etc/apache2/ports.conf
+        regexp: '^Listen 80$'
+        line: 'Listen 9999'
+
+    - name: Cambiar puerto del sitio predeterminado
+      replace:
+        path: /etc/apache2/sites-available/000-default.conf
+        regexp: '<VirtualHost \*:80>'
+        replace: '<VirtualHost *:9999>'
+
+    - name: Crear pagina web de comprobacion
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <html>
+          <head><title>Servidor Apache DEVNET</title></head>
+          <body>
+          <h1>Servidor Apache configurado con Ansible</h1>
+          <h2>Puerto 9999 - Juan Luis Cayun</h2>
+          </body>
+          </html>
+
+    - name: Reiniciar y habilitar Apache
+      service:
+        name: apache2
+        state: restarted
+        enabled: yes
+
